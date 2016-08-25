@@ -4,6 +4,7 @@ import "os"
 import "fmt"
 import "time"
 import "image"
+import "runtime"
 import "image/gif"
 import "image/color"
 import "image/color/palette"
@@ -36,6 +37,8 @@ func doSomething(i int, j int, cmplPl [][]pnt, x0 float64, y0 float64, k int, im
 
 func main() {
 	fmt.Println("Generating fractal gif")
+	noProcs := runtime.GOMAXPROCS(500)
+	fmt.Println(noProcs)
 	//var width, height, iter int = 600, 500, 20
 	//var minX, maxX, minY, maxY = -2, 1, -1, 1
 	
