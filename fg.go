@@ -1,13 +1,18 @@
 package main
 
-import "os"
-import "fmt"
-import "time"
-import "image"
-import "runtime"
-import "image/gif"
-import "image/color"
-import "image/color/palette"
+import (
+	"os"
+	"fmt"
+ 	"time"
+ 	"image"
+	"bufio"
+	"strings"
+	"strconv"
+	"runtime"
+	"image/gif"
+	"image/color"
+	"image/color/palette"
+)
 
 	type pnt struct {
 		re float64
@@ -37,24 +42,39 @@ func doSomething(i int, j int, cmplPl [][]pnt, x0 float64, y0 float64, k int, im
 
 func main() {
 	fmt.Println("Generating fractal gif")
-	noProcs := runtime.GOMAXPROCS(500)
-	fmt.Println(noProcs)
-	//var width, height, iter int = 600, 500, 20
-	//var minX, maxX, minY, maxY = -2, 1, -1, 1
+	fmt.Print("Enter minX, maxX, minY, maxY, noIterations, resolution : ") 
+
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)	
+	result := strings.Split(text, ",")
 	
-	var width, height, iter int = 600, 600, 20
-	var minX, maxX, minY, maxY = -2, -1, 0, 1
+	if(len(result) != 6) {
+		fmt.Println("Usage")
+		return
+	}
+	
+	minX, _ := strconv.Atoi(result[0])	
+	maxX, _ := strconv.Atoi(result[1])
+	minY, _ := strconv.Atoi(result[2])
+	maxY, _ := strconv.Atoi(result[3])
+	iter, _ := strconv.Atoi(result[4])
+	resl, _ := strconv.Atoi(result[5])
+	width := (maxX - minX) * resl
+	height := (maxY - minY) * resl
+	
+	noProcs := runtime.GOMAXPROCS(500)
+	fmt.Println("Number of workers = [%d]", noProcs)
+	
 
 	cmplPl := make([][]pnt, width)	
 	for i := range cmplPl {
 		cmplPl[i] = make([]pnt, height)	
 	}
 		
-
 	levels := make([][]int, width)
 	reVals := make([][]float64, width)
 	imVals := make([][]float64, width)
-	
 	for i := range levels {
 		levels[i] = make([]int, height)
 		reVals[i] = make([]float64, height)
