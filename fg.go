@@ -8,6 +8,10 @@ import (
 	"strconv"
 	"runtime"
 	"image/gif"
+	"net/http"
+	"io"
+	"html/template"
+	"io/ioutil"
 	"./fractal_gen"
 )
 
@@ -33,18 +37,61 @@ func userInputAndInitGen() {
 	fractal_gen.InitVariables(minX, maxX, minY, maxY, iter, resl)
 }
 
+func InitGen(xMin string, xMax string, yMin string, yMax string,
+						itert string, rsl string) {
+	minX, _ := strconv.Atoi(strings.TrimSpace(xMin))	
+	maxX, _ := strconv.Atoi(strings.TrimSpace(xMax))
+	minY, _ := strconv.Atoi(strings.TrimSpace(yMin))
+	maxY, _ := strconv.Atoi(strings.TrimSpace(yMax))
+	iter, _ := strconv.Atoi(strings.TrimSpace(itert))
+	resl, _ := strconv.Atoi(strings.TrimSpace(rsl))
+	
+	fractal_gen.InitVariables(minX, maxX, minY, maxY, iter, resl)
+}
+
+func respHandler(res http.ResponseWriter, r *http.Request) {
+	fmt.Println("method:", r.Method) //get request method
+    if r.Method == "GET" {
+        t, _ := template.ParseFiles("gen.gtpl")
+        t.Execute(res, nil)
+    } else {
+        r.ParseForm()
+        // logic part of log in
+
+		InitGen(strings.Join(r.Form["minX"], ""), strings.Join(r.Form["maxX"], ""), 
+				strings.Join(r.Form["minY"], ""), strings.Join(r.Form["maxY"], ""),
+				strings.Join(r.Form["iter"], ""), strings.Join(r.Form["resl"], "")) 
+
+		images, delays := fractal_gen.GenerateFractalGif()
+		f, _ := os.OpenFile("mandle.gif", os.O_WRONLY|os.O_CREATE, 0600)
+	
+		gif.EncodeAll(f, &gif.GIF{
+			Image: images, 
+			Delay: delays,
+		})
+		f.Close()		
+    
+    	res.Header().Set("Content-Type","image/gif")
+    	buf, _ := ioutil.ReadFile("mandle.gif")
+    	io.WriteString(res,string(buf))
+	}
+}
+
 func main() {	
 	fmt.Println("Generating fractal gif")
 	noProcs := runtime.GOMAXPROCS(500)
-	fmt.Println("Number of workers = [%d]", noProcs)
+	fmt.Println("Number of workers = ", noProcs)
 
-	userInputAndInitGen()	
-	images, delays := fractal_gen.GenerateFractalGif()
+	//userInputAndInitGen()	
+	//images, delays := fractal_gen.GenerateFractalGif()
 	
-	f, _ := os.OpenFile("mandle.gif", os.O_WRONLY|os.O_CREATE, 0600)
-	defer f.Close()
-	gif.EncodeAll(f, &gif.GIF{
-		Image: images, 
-		Delay: delays,
-	})
+	//f, _ := os.OpenFile("mandle.gif", os.O_WRONLY|os.O_CREATE, 0600)
+	
+	//gif.EncodeAll(f, &gif.GIF{
+	//	Image: images, 
+	// 	Delay: delays,
+	// })
+	// f.Close()
+	http.HandleFunc("/", respHandler)
+    http.ListenAndServe(":8086", nil)
 }
