@@ -53,16 +53,15 @@ func main() {
 		fmt.Println("Usage")
 		return
 	}
-	
-	minX, _ := strconv.Atoi(result[0])	
-	maxX, _ := strconv.Atoi(result[1])
-	minY, _ := strconv.Atoi(result[2])
-	maxY, _ := strconv.Atoi(result[3])
-	iter, _ := strconv.Atoi(result[4])
-	resl, _ := strconv.Atoi(result[5])
+	minX, _ := strconv.Atoi(strings.TrimSpace(result[0]))	
+	maxX, _ := strconv.Atoi(strings.TrimSpace(result[1]))
+	minY, _ := strconv.Atoi(strings.TrimSpace(result[2]))
+	maxY, _ := strconv.Atoi(strings.TrimSpace(result[3]))
+	iter, _ := strconv.Atoi(strings.TrimSpace(result[4]))
+	resl, _ := strconv.Atoi(strings.TrimSpace(result[5]))
 	width := (maxX - minX) * resl
 	height := (maxY - minY) * resl
-	
+	fmt.Println("Parsed values: ", minX, maxX, minY, maxY, iter, resl, width, height)	
 	noProcs := runtime.GOMAXPROCS(500)
 	fmt.Println("Number of workers = [%d]", noProcs)
 	
