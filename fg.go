@@ -9,9 +9,9 @@ import (
 	"runtime"
 	"image/gif"
 	"net/http"
-	"io"
+	// "io"
 	"html/template"
-	"io/ioutil"
+	// "io/ioutil"
 	"./fractal_gen"
 )
 
@@ -56,24 +56,18 @@ func respHandler(res http.ResponseWriter, r *http.Request) {
         t.Execute(res, nil)
     } else {
         r.ParseForm()
-        // logic part of log in
-
+		
 		InitGen(strings.Join(r.Form["minX"], ""), strings.Join(r.Form["maxX"], ""), 
 				strings.Join(r.Form["minY"], ""), strings.Join(r.Form["maxY"], ""),
 				strings.Join(r.Form["iter"], ""), strings.Join(r.Form["resl"], "")) 
 
 		images, delays := fractal_gen.GenerateFractalGif()
-		f, _ := os.OpenFile("mandle.gif", os.O_WRONLY|os.O_CREATE, 0600)
-	
-		gif.EncodeAll(f, &gif.GIF{
+		
+		res.Header().Set("Content-Type","image/gif")
+		gif.EncodeAll(res, &gif.GIF{
 			Image: images, 
 			Delay: delays,
 		})
-		f.Close()		
-    
-    	res.Header().Set("Content-Type","image/gif")
-    	buf, _ := ioutil.ReadFile("mandle.gif")
-    	io.WriteString(res,string(buf))
 	}
 }
 
