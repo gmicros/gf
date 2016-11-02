@@ -52,8 +52,9 @@ func InitGen(xMin string, xMax string, yMin string, yMax string,
 func respHandler(res http.ResponseWriter, r *http.Request) {
 	fmt.Println("method:", r.Method) //get request method
     if r.Method == "GET" {
-        t, _ := template.ParseFiles("gen.gtpl")
-        t.Execute(res, nil)
+        fmt.Fprintf(w, "Hi there")
+	//t, _ := template.ParseFiles("gen.gtpl")
+        //t.Execute(res, nil)
     } else {
         r.ParseForm()
 		
