@@ -87,5 +87,13 @@ func main() {
 	// })
 	// f.Close()
 	http.HandleFunc("/", respHandler)
-    http.ListenAndServe(":8086", nil)
+
+        port := os.Getenv("PORT")
+        if port == "" {
+                port = "8080"
+        }
+        http.ListenAndServe(":"+port, nil)
+
+
+//    http.ListenAndServe(":8086", nil)
 }
