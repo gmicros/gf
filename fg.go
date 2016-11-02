@@ -53,7 +53,7 @@ func respHandler(res http.ResponseWriter, r *http.Request) {
 	fmt.Println("method:", r.Method) //get request method
     if r.Method == "GET" {
         fmt.Fprintf(res, "Hi there")
-	//t, _ := template.ParseFiles("gen.gtpl")
+	t, _ := template.ParseFiles("gen.gtpl")
         //t.Execute(res, nil)
     } else {
         r.ParseForm()
