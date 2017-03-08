@@ -2,18 +2,49 @@ package main
 
 import (
 	"os"
+	"io"
 	"fmt"
+	"log"
 	"bufio"
 	"strings"
 	"strconv"
-	"runtime"
+	//"runtime"
 	"image/gif"
 	"net/http"
-	// "io"
 	"html/template"
-	// "io/ioutil"
+	"io/ioutil"
 	"./fractal_gen"
 )
+
+var (
+	Trace 	*log.Logger
+	Info	*log.Logger
+	Warning	*log.Logger
+	Error	*log.Logger
+)
+
+func Init(
+    traceHandle io.Writer,
+    infoHandle io.Writer,
+    warningHandle io.Writer,
+    errorHandle io.Writer) {
+
+    Trace = log.New(traceHandle,
+        "TRACE: ",
+        log.Ldate|log.Ltime|log.Lshortfile)
+
+    Info = log.New(infoHandle,
+        "INFO: ",
+        log.Ldate|log.Ltime|log.Lshortfile)
+
+    Warning = log.New(warningHandle,
+        "WARNING: ",
+        log.Ldate|log.Ltime|log.Lshortfile)
+
+    Error = log.New(errorHandle,
+        "ERROR: ",
+        log.Ldate|log.Ltime|log.Lshortfile)
+}
 
 func userInputAndInitGen() {
 	fmt.Print("Enter minX, maxX, minY, maxY, noIterations, resolution : ") 
@@ -50,18 +81,19 @@ func InitGen(xMin string, xMax string, yMin string, yMax string,
 }
 
 func respHandler(res http.ResponseWriter, r *http.Request) {
-	fmt.Println("method:", r.Method) //get request method
+	Info.Println("method:", r.Method) //get request method
     if r.Method == "GET" {
-        fmt.Fprintf(res, "Hi there")
-	t, _ := template.ParseFiles("gen.gtpl")
+    	Info.Println("Parsing template")
+		t, _ := template.ParseFiles("gen.gtpl")
+		Info.Println("Executing template")
         t.Execute(res, nil)
     } else {
         r.ParseForm()
-		
+		Info.Println("Initializing values")
 		InitGen(strings.Join(r.Form["minX"], ""), strings.Join(r.Form["maxX"], ""), 
 				strings.Join(r.Form["minY"], ""), strings.Join(r.Form["maxY"], ""),
 				strings.Join(r.Form["iter"], ""), strings.Join(r.Form["resl"], "")) 
-
+		Info.Println("Generating fractal")
 		images, delays := fractal_gen.GenerateFractalGif()
 		
 		res.Header().Set("Content-Type","image/gif")
@@ -73,27 +105,17 @@ func respHandler(res http.ResponseWriter, r *http.Request) {
 }
 
 func main() {	
-	fmt.Println("Generating fractal gif")
-	noProcs := runtime.GOMAXPROCS(500)
-	fmt.Println("Number of workers = ", noProcs)
-
-	//userInputAndInitGen()	
-	//images, delays := fractal_gen.GenerateFractalGif()
-	
-	//f, _ := os.OpenFile("mandle.gif", os.O_WRONLY|os.O_CREATE, 0600)
-	
-	//gif.EncodeAll(f, &gif.GIF{
-	//	Image: images, 
-	// 	Delay: delays,
-	// })
-	// f.Close()
+	//fmt.Println("Generating fractal gif")
+	//noProcs := runtime.GOMAXPROCS(500)
+	//fmt.Println("Number of workers = ", noProcs)
+    Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+    Info.Println("Starting application")
 	http.HandleFunc("/", respHandler)
 	  
 	port := os.Getenv("PORT")
 	if port == "" {
         	port = "8080"
-    	}
-        http.ListenAndServe(":"+port, nil)
-
-//http.ListenAndServe(":8086", nil)
+    }
+    Info.Println("Listening for requests on port = ["+port+"]")
+    http.ListenAndServe(":"+port, nil)
 }
