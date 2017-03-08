@@ -1,1 +1,1 @@
-web: go run fg.go 
+web: fg 
