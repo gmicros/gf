@@ -1,1 +1,1 @@
-web: ls ./bin/src
+web: ls ./bin/src/
