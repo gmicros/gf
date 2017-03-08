@@ -1,1 +1,1 @@
-web: deployment
+web: go run fg.go 
