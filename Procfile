@@ -1,1 +1,1 @@
-web: ./bin/fg 
+web: ls ./bin
