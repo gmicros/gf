@@ -1,1 +1,1 @@
-web: ls -ld $(find .) 
+web: fg 
