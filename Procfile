@@ -1,1 +1,1 @@
-web: ./fg 
+web: ls 
