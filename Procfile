@@ -1,1 +1,1 @@
-web: deployment/fg 
+web: fg 
